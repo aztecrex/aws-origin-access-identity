@@ -1,9 +1,26 @@
 module Test.Main where
 
-import Prelude
-import Control.Monad.Eff (Eff)
-import Control.Monad.Eff.Console (CONSOLE, log)
+import Prelude (Unit, ($), (==), bind)
 
-main :: forall e. Eff (console :: CONSOLE | e) Unit
-main = do
-  log "You should add some tests."
+import Test.Unit (suite, test)
+import Test.Unit.Main (runTest)
+import Test.Unit.Console(TESTOUTPUT)
+import Test.Unit.Assert(assert)
+
+import Control.Monad.Eff (Eff)
+import Control.Monad.Eff.Console (CONSOLE)
+import Control.Monad.Aff.AVar(AVAR)
+
+
+main :: forall t1.
+      Eff
+        ( console :: CONSOLE
+        , testOutput :: TESTOUTPUT
+        , avar :: AVAR
+        | t1
+        )
+        Unit
+main = runTest do
+  suite "aws support" do
+    test "should create OAI" do
+      assert "it does not work" false
