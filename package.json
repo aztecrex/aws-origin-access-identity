@@ -1,0 +1,27 @@
+{
+  "name": "aws-origin-access-identity",
+  "version": "1.0.0",
+  "description": "Custom AWS CloudFormation resource to obtain an origin access identity (OAI). An OAI is a security principal that a CloudFront distribution assumes to authorize operation of an S3 origin.",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aztecrex/aws-origin-access-identity.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/aztecrex/aws-origin-access-identity/issues"
+  },
+  "homepage": "https://github.com/aztecrex/aws-origin-access-identity#readme",
+  "dependencies": {
+  },
+  "devDependencies": {
+    "aws-sdk": "^2.16.0"
+  }
+}
