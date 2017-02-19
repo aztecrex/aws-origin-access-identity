@@ -19,9 +19,10 @@
     "url": "https://github.com/aztecrex/aws-origin-access-identity/issues"
   },
   "homepage": "https://github.com/aztecrex/aws-origin-access-identity#readme",
-  "dependencies": {
-  },
+  "dependencies": {},
   "devDependencies": {
-    "aws-sdk": "^2.16.0"
+    "aws-sdk": "^2.16.0",
+    "browserify": "^14.1.0",
+    "uglify-js": "^2.7.5"
   }
 }
