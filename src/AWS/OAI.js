@@ -1,14 +1,13 @@
 'use strict';
 
 const AWS = require("aws-sdk");
-var cloudfront = new AWS.CloudFront();
+const cloudFront = new AWS.CloudFront();
 
 function doCreateOAI(ref, cb) {
-  const cf = new AWS.CloudFront();
-  cf.createCloudFrontOriginAccessIdentity({
+  cloudFront.createCloudFrontOriginAccessIdentity({
     CloudFrontOriginAccessIdentityConfig: {
       CallerReference: ref,
-      Comment: "Created from Purescript Lambda Booyah"
+      Comment: ref
     }
   }, function (err, data) {
     if (err)
@@ -19,8 +18,7 @@ function doCreateOAI(ref, cb) {
 }
 
 function doGetOAI(id, cb) {
-  const cf = new AWS.CloudFront();
-  cf.getCloudFrontOriginAccessIdentity({
+  cloudFront.getCloudFrontOriginAccessIdentity({
     Id: id
   }, function (err, data) {
     if (err)
@@ -30,19 +28,33 @@ function doGetOAI(id, cb) {
   });
 }
 
+function doListOAIs(prev, cb) {
+  prev = prev || {};
+  cloudFront.listCloudFrontOriginAccessIdentities({
+    Marker: prev.NextMarker
+  }, function (err, data) {
+    if (err)
+      cb(JSON.stringify(err));
+    else
+      cb(null, data);
+  });
+}
+
 exports.identity = function(oai) {
-  return oai.CloudFrontOriginAccessIdentity.Id;
+  return oai.Id || oai.CloudFrontOriginAccessIdentity.Id;
 };
 
 exports.reference = function(oai) {
-  return oai.
+  return (oai.CloudFrontOriginAccessIdentity &&
+    oai.
     CloudFrontOriginAccessIdentity.
     CloudFrontOriginAccessIdentityConfig.
-    CallerReference;
+    CallerReference) || "<Unknown>";
 };
 
 exports.canonical = function(oai) {
-  return oai.CloudFrontOriginAccessIdentity.S3CanonicalUserId;
+  return  oai.S3CanonicalUserId ||
+          oai.CloudFrontOriginAccessIdentity.S3CanonicalUserId;
 };
 
 exports.createOAIImpl = function (cberror) {
@@ -73,4 +85,44 @@ exports.getOAIImpl = function (cberror) {
       }
     }
   }
+}
+
+exports.listOAIsImpl = function (cberror) {
+  return function (cbsuccess) {
+    return function () {
+      doListOAIs(null, function(err, succ) {
+        if (err)
+          cberror(err)();
+        else
+          cbsuccess(succ)();
+      });
+    }
+  }
+}
+
+exports.listMoreOAIsImpl = function (cberror) {
+  return function (cbsuccess) {
+    return function (oaipage) {
+      return function () {
+        doListOAIs(oaipage, function(err, succ) {
+          if (err)
+            cberror(err)();
+          else
+            cbsuccess(succ)();
+        });
+      }
+    }
+  }
+}
+
+exports.more = function (oaipage) {
+  return !!(oaipage.CloudFrontOriginAccessIdentityList.NextMarker)
+}
+
+exports.unpage = function (oaipage) {
+  return oaipage.CloudFrontOriginAccessIdentityList.Items
+}
+
+exports.showData = function (data) {
+  return JSON.stringify(data);
 }
