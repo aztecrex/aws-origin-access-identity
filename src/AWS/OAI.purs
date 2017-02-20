@@ -1,4 +1,4 @@
-module OAI (createOAI, tryIt, tryIt2) where
+module OAI (createOAI, tryIt) where
 
 import Prelude (Unit, bind, ($), (<>))
 
@@ -17,13 +17,9 @@ createOAI :: forall eff. String -> Aff eff String
 createOAI req = makeAff
   (\error success -> createOAIImpl error success req)
 
-tryIt :: forall eff. Aff (console :: CONSOLE | eff) Unit
-tryIt = do
-  out <- createOAI "Hi!"
-  log ("got: " <> out)
 
-tryIt2 :: forall eff. Aff (console :: CONSOLE | eff) Unit
-tryIt2 = do
-  log "wot?"
-  out <- attempt $ createOAI "Boink"
+tryIt :: forall eff. String -> Aff (console :: CONSOLE | eff) Unit
+tryIt clid = do
+  log "here we go"
+  out <- attempt $ createOAI clid
   logShow out

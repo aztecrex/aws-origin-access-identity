@@ -1,11 +1,21 @@
 'use strict';
 
+const AWS = require("aws-sdk");
+var cloudfront = new AWS.CloudFront();
 
-function doNativeRequest(s, cb) {
-  if (s === "Boink")
-    setTimeout(function() { cb(new Error("my word!")); }, 500);
-  else
-    setTimeout(function() { cb(null, s); }, 1000);
+function doNativeRequest(clid, cb) {
+  const cf = new AWS.CloudFront();
+  cf.createCloudFrontOriginAccessIdentity({
+    CloudFrontOriginAccessIdentityConfig: {
+      CallerReference: clid,
+      Comment: "Created from Purescript Lambda Booyah"
+    }
+  }, function (err, data) {
+    if (err)
+      cb(JSON.stringify(err));
+    else
+      cb(null, JSON.stringify(data));
+  });
 }
 
 exports.createOAIImpl = function (cberror) {
