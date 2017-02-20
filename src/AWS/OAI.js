@@ -14,9 +14,26 @@ function doNativeRequest(clid, cb) {
     if (err)
       cb(JSON.stringify(err));
     else
-      cb(null, JSON.stringify(data));
+      cb(null, data);
   });
 }
+
+exports.principal = function(oai) {
+  return oai.CloudFrontOriginAccessIdentity.Id;
+};
+
+exports.reference = function(oai) {
+  return oai.
+    CloudFrontOriginAccessIdentity.
+    CloudFrontOriginAccessIdentityConfig.
+    CallerReference;
+};
+
+exports.canonical = function(oai) {
+  return oai.CloudFrontOriginAccessIdentity.S3CanonicalUserId;
+};
+
+
 
 exports.createOAIImpl = function (cberror) {
   return function (cbsuccess) {

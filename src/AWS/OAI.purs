@@ -1,6 +1,6 @@
-module AWS.OAI (createOAI, tryIt) where
+module AWS.OAI (OAI, createOAI, tryIt) where
 
-import Prelude (Unit, bind, ($))
+import Prelude (Unit, bind, ($), class Show, (<>))
 
 import Control.Monad.Eff (Eff)
 import Control.Monad.Eff.Exception (Error)
@@ -10,15 +10,27 @@ import AWS (AWS)
 
 foreign import data OAI :: *
 
+foreign import reference :: OAI -> String
+foreign import principal :: OAI -> String
+foreign import canonical :: OAI -> String
+
+instance showOAI :: Show OAI where
+  show x = reference x <> " " <> principal x <> " " <> canonical x
+
+
+
 foreign import createOAIImpl :: forall eff.
   (Error -> Eff (aws :: AWS | eff) Unit) ->
-  (String -> Eff (aws :: AWS | eff) Unit) ->
+  (OAI -> Eff (aws :: AWS | eff) Unit) ->
   String ->
   Eff (aws :: AWS | eff) Unit
 
-createOAI :: forall eff. String -> Aff (aws :: AWS | eff) String
+
+createOAI :: forall eff. String -> Aff (aws :: AWS | eff) OAI
 createOAI req = makeAff
   (\error success -> createOAIImpl error success req)
+
+
 
 
 tryIt :: forall eff. String -> Aff (console :: CONSOLE, aws :: AWS | eff) Unit
