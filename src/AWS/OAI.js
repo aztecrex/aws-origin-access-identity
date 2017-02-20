@@ -3,11 +3,11 @@
 const AWS = require("aws-sdk");
 const cloudFront = new AWS.CloudFront();
 
-function doCreateOAI(ref, cb) {
+function doCreateOAI(ref, comment, cb) {
   cloudFront.createCloudFrontOriginAccessIdentity({
     CloudFrontOriginAccessIdentityConfig: {
       CallerReference: ref,
-      Comment: ref
+      Comment: comment
     }
   }, function (err, data) {
     if (err)
@@ -44,12 +44,17 @@ exports.identity = function(oai) {
   return oai.Id || oai.CloudFrontOriginAccessIdentity.Id;
 };
 
-exports.reference = function(oai) {
-  return (oai.CloudFrontOriginAccessIdentity &&
-    oai.
-    CloudFrontOriginAccessIdentity.
-    CloudFrontOriginAccessIdentityConfig.
-    CallerReference) || "<Unknown>";
+exports.referenceImpl = function (nothing) {
+  return function (just) {
+    return function(oai) {
+      if (oai.CloudFrontOriginAccessIdentity)
+        return just(oai.
+          CloudFrontOriginAccessIdentity.
+          CloudFrontOriginAccessIdentityConfig.
+          CallerReference);
+      else return nothing;
+    };
+  };
 };
 
 exports.canonical = function(oai) {
@@ -57,16 +62,26 @@ exports.canonical = function(oai) {
           oai.CloudFrontOriginAccessIdentity.S3CanonicalUserId;
 };
 
+exports.comment = function(oai) {
+  return oai.Comment ||
+    oai.
+    CloudFrontOriginAccessIdentity.
+    CloudFrontOriginAccessIdentityConfig.
+    Comment
+}
+
 exports.createOAIImpl = function (cberror) {
   return function (cbsuccess) {
     return function (reference) {
-      return function () {
-        doCreateOAI(reference, function(err, succ) {
-          if (err)
-            cberror(err)();
-          else
-            cbsuccess(succ)();
-        });
+      return function (comment) {
+        return function () {
+          doCreateOAI(reference, comment, function(err, succ) {
+            if (err)
+              cberror(err)();
+            else
+              cbsuccess(succ)();
+          });
+        }
       }
     }
   }
