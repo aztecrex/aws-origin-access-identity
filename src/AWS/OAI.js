@@ -3,11 +3,11 @@
 const AWS = require("aws-sdk");
 var cloudfront = new AWS.CloudFront();
 
-function doNativeRequest(clid, cb) {
+function doCreateOAI(ref, cb) {
   const cf = new AWS.CloudFront();
   cf.createCloudFrontOriginAccessIdentity({
     CloudFrontOriginAccessIdentityConfig: {
-      CallerReference: clid,
+      CallerReference: ref,
       Comment: "Created from Purescript Lambda Booyah"
     }
   }, function (err, data) {
@@ -18,7 +18,19 @@ function doNativeRequest(clid, cb) {
   });
 }
 
-exports.principal = function(oai) {
+function doGetOAI(id, cb) {
+  const cf = new AWS.CloudFront();
+  cf.getCloudFrontOriginAccessIdentity({
+    Id: id
+  }, function (err, data) {
+    if (err)
+      cb(JSON.stringify(err));
+    else
+      cb(null, data);
+  });
+}
+
+exports.identity = function(oai) {
   return oai.CloudFrontOriginAccessIdentity.Id;
 };
 
@@ -33,13 +45,26 @@ exports.canonical = function(oai) {
   return oai.CloudFrontOriginAccessIdentity.S3CanonicalUserId;
 };
 
-
-
 exports.createOAIImpl = function (cberror) {
   return function (cbsuccess) {
-    return function (request) {
+    return function (reference) {
       return function () {
-        doNativeRequest(request, function(err, succ) {
+        doCreateOAI(reference, function(err, succ) {
+          if (err)
+            cberror(err)();
+          else
+            cbsuccess(succ)();
+        });
+      }
+    }
+  }
+}
+
+exports.getOAIImpl = function (cberror) {
+  return function (cbsuccess) {
+    return function (identity) {
+      return function () {
+        doGetOAI(identity, function(err, succ) {
           if (err)
             cberror(err)();
           else
