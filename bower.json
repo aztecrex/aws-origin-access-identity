@@ -10,7 +10,8 @@
     "purescript-prelude": "^2.4.0",
     "purescript-console": "^2.0.0",
     "purescript-foreign": "^3.2.0",
-    "purescript-aff": "^2.0.3"
+    "purescript-aff": "^2.0.3",
+    "purescript-node-http": "^3.0.1"
   },
   "devDependencies": {
     "purescript-psci-support": "^2.0.0",
