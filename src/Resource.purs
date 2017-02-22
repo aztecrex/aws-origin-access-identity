@@ -1,6 +1,7 @@
 module Resource where
 
-import Prelude(class Show)
+import Prelude (class Show)
+import Node.URL (parse, URL)
 
 foreign import showData :: forall a. a -> String
 
