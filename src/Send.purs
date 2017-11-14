@@ -1,7 +1,7 @@
 module Send where
 
 import Prelude ((<>), ($), Unit, unit, bind, pure)
-import Node.Stream (end, onData, onDataString)
+import Node.Stream (end, onDataString)
 import Node.Encoding (Encoding(..))
 import Node.HTTP (HTTP)
 import Node.HTTP.Client (
